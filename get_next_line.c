@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkwizera <mkwizera@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kuzi <kuzi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 07:55:17 by mkwizera          #+#    #+#             */
-/*   Updated: 2024/03/23 14:24:37 by mkwizera         ###   ########.fr       */
+/*   Updated: 2024/03/25 07:28:46 by kuzi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,11 @@ char	*ft_exctract_line(char *read_data, char *left0ver)
 	}
 	*left0ver = '\0';
 	return (left0ver);
+}
+
+int main()
+{
+	
 }
 // ngiye noneho guhita nkora line extractin ninyirangiza 
 // igomba kuza kuritaninga new linendibuze guikoresh mur
