@@ -5,123 +5,80 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mkwizera <mkwizera@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/20 07:55:17 by mkwizera          #+#    #+#             */
-/*   Updated: 2024/03/27 08:31:48 by mkwizera         ###   ########.fr       */
+/*   Created: 2024/05/29 12:36:08 by mkwizera          #+#    #+#             */
+/*   Updated: 2024/05/30 07:56:31 by mkwizera         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*ft_read_from_fd(int fd)
+static char	*read_line_buffer(int fd, char *buf, char *final)
 {
-	char	buffer[BUFFER_SIZE];
-	char	*read_data;
-	int		bytes_data;
+	int		read_line;
+	char	*char_temp;
 
-	bytes_data = 0;
-	bytes_data = read(fd, (char *)buffer, BUFFER_SIZE);
-	if (bytes_data == -1)
+	read_line = 1;
+	while (read_line)
 	{
-		return (NULL);
+		read_line = read(fd, buf, BUFFER_SIZE);
+		if (read_line == -1)
+			return (NULL);
+		if (read_line == 0)
+			break ;
+		buf[read_line] = '\0';
+		if (!final)
+			final = ft_strdup("");
+		char_temp = final;
+		final = ft_strjoin(char_temp, buf);
+		if (!final)
+			return (NULL);
+		free(char_temp);
+		char_temp = NULL;
+		if (ft_strchr (buf, '\n'))
+			break ;
 	}
-	else if (bytes_data == 0)
-	{
-		return (NULL);
-	}
-	read_data = (char *)malloc(bytes_data +1);
-	if (read_data == NULL)
-		return (NULL);
-	ft_memcpy(read_data, buffer, bytes_data);
-	read_data[bytes_data] = '\0';
-	return (read_data);
+	return (final);
 }
 
-static char	*ft_exctract_line(char *read_data)
+static char	*_extract_line(char *line)
 {
-	char	*left0ver;
-	char	*start;
+	size_t	count;
+	char	*backup;
 
-	if (*read_data == '\0')
+	count = 0;
+	while (line[count] != '\0' && line[count] != '\n')
+		count++;
+	if (line[count] == '\0')
 		return (NULL);
-	while (*read_data == '\n')
-		read_data ++;
-	start = read_data;
-	while (*read_data != '\n' && *read_data != '\0')
+	backup = ft_substr(line, count + 1, ft_strlen(line)- count);
+	if (!backup)
+		backup = NULL;
+	if (backup[0] == '\0')
 	{
-		read_data++;
-	}
-	left0ver = malloc(ft_strlen(read_data)+2);
-	if (left0ver == NULL)
+		free (backup);
+		backup = NULL;
 		return (NULL);
-	ft_memcpy(left0ver, start, read_data - start);
-	if (*read_data == '\n')
-		left0ver[read_data - start] = '\n';
-	else
-	{
-		left0ver[read_data - start] = '\0';
 	}
-	left0ver[read_data - start] = '\0';
-	return (left0ver);
+	line[count + 1] = '\0';
+	return (backup);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*leftover;
 	char		*line;
-	char		*read_data;
+	char		*buf;
+	static char	*final;
 
-	leftover = NULL;
-	if (!leftover)
-	{
-		read_data = ft_read_from_fd(fd);
-		if (!read_data)
-			return (NULL);
-	}
-	else
-		read_data = leftover;
-	line = ft_exctract_line(read_data);
-	if (line)
-		leftover = read_data + ft_strlen(line) + 1;
-	else
-		leftover = NULL;
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buf)
+		return (NULL);
+	line = read_line_buffer(fd, buf, final);
+	free(buf);
+	buf = NULL;
+	if (!line)
+		return (NULL);
+	final = _extract_line(line);
 	return (line);
 }
-
-// int	main()
-// {
-// 	int fd;
-// 	char *line;
-// 	fd = open("input.txt", O_RDONLY);
-// 	if (fd == -1)
-// 	{
-//         perror("Error opening file");
-//         return 1;
-//     }
-//     while ((line = get_next_line(fd)) != NULL)
-//     {
-//         printf("%s\n", line);
-//         free(line);
-// 	}
-//     close(fd);
-//     return (0);
-// }
-
-// int	main()
-// {
-// 	int		fd;
-// 	char	*line;
-
-// 	fd = open("input.txt", O_RDONLY);
-// 	if (fd == -1)
-// 	{
-// 		perror("Error opening file");
-// 		return (1);
-// 	}
-// 	line = get_next_line(fd);
-// 	while (*line != '\0')
-// 	{
-// 		printf("%s\n", line);
-// 		free(line);
-// 	}
-// 	return (0);
-// }
